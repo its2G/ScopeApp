@@ -1,4 +1,4 @@
-package com.expophotography
+package com.anonymous.expophotography
 
 import android.os.Build
 import android.os.Bundle

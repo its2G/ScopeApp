@@ -4,11 +4,17 @@
     "slug": "expophotography",
     "version": "1.0.0",
     "android": {
-      "package": "com.anonymous.expophotography"
+      "package": "com.anonymous.expophotography",
+      "config": {
+        "googleMaps": {
+          "apiKey": "***REMOVED***"
+        }
+      }
     },
     "splash": {
       "backgroundColor": "#FFFFFF"
     },
+    
     "plugins": [
       [
         "react-native-vision-camera",
@@ -16,6 +22,22 @@
           "cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera.",
           "enableMicrophonePermission": true,
           "microphonePermissionText": "$(PRODUCT_NAME) needs access to your Microphone."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow Android to use your location.",
+          "isAndroidBackgroundLocationEnabled": true,
+          "isAndroidForegroundServiceEnabled": true
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#ffffff",
+          "defaultChannel": "default",
+          "enableBackgroundRemoteNotifications": false
         }
       ]
     ]

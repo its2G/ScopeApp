@@ -1,8 +1,12 @@
+// filepath: g:\CODINGWORK\202324Y3CC\FinalProject\Projects\expophotography\screens\CameraScreen.js
 import React, { useEffect, useRef, useState } from 'react';
 import { View, ActivityIndicator, StyleSheet, Pressable, Text } from 'react-native';
 import { Camera, useCameraDevice, useCameraPermission } from 'react-native-vision-camera';
+import RNFS from 'react-native-fs';
 
-const CameraScreen = () => {
+// import axios from 'axios';
+
+const CameraScreen = ({ navigation }) => {
   const device = useCameraDevice('back');
   const { hasPermission, requestPermission } = useCameraPermission();
   const camera = useRef(null);
@@ -21,9 +25,39 @@ const CameraScreen = () => {
   const onTakePicture = async () => {
     if (!camera.current) return;
     const photo = await camera.current.takePhoto();
+
+
+
+
     setPhoto(photo);
+    const newPath = `${RNFS.DocumentDirectoryPath}/photo.jpg`; // Use a valid path
+    await RNFS.moveFile(photo.path, newPath);
+    console.log("Updated Photo URI:", newPath);
     console.log("Photo captured:", photo.path);
-  };
+
+
+    
+  const formData = new FormData();
+  formData.append('photo', {
+    uri: `file://${newPath}`, // Ensure the correct URI format
+    type: 'image/jpeg',
+    name: 'photo.jpg',
+  });
+
+  const response = await fetch('https://7317-82-7-110-137.ngrok-free.app/upload', {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      'Accept': 'application/json',
+    },
+  });
+
+  const data = await response.json();
+  console.log('Uploaded Photo URL:', data.photoUrl);
+
+  
+};
 
   const onStartRecording = async () => {
     if (!camera.current) return;
@@ -56,6 +90,11 @@ const CameraScreen = () => {
         <Pressable onPress={isRecording ? onStopRecording : onStartRecording} style={[styles.captureButton, { backgroundColor: isRecording ? 'red' : 'white' }]}>
           <Text style={styles.buttonText}>{isRecording ? '⏹ Stop' : '🎥 Record'}</Text>
         </Pressable>
+
+        <Pressable onPress={() => navigation.navigate('Map')} style={styles.captureButton}>
+          <Text style={styles.buttonText}>Go to Map</Text>
+        </Pressable>
+
       </View>
     </View>
   );

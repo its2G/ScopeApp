@@ -26,9 +26,6 @@ const CameraScreen = ({ navigation }) => {
     if (!camera.current) return;
     const photo = await camera.current.takePhoto();
 
-
-
-
     setPhoto(photo);
     const newPath = `${RNFS.DocumentDirectoryPath}/photo.jpg`; // Use a valid path
     await RNFS.moveFile(photo.path, newPath);

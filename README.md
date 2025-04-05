@@ -7,4 +7,5 @@
 ## 27/03/2025
   #### I have just added the fetch POST commands to push my photos to my server. I have attempted to use Axios to communicate with the server, but Fetch seemed to work easier for me. I used RNFS to change the path of my file; VisionCamera makes the path of the photos hidden so RNFS is required. 
 
-  
+## 05/04/2025
+#### I have began to implement the Swipe Engine, similar to Tinder Swiping Engine. I am successful in fetching the Image URL's stored on my Supabase server and fetching them to my Swipescreen. Soon enough, I will have various images that will allow for users to swipe left and right on images. 

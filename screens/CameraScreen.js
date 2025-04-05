@@ -3,6 +3,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, ActivityIndicator, StyleSheet, Pressable, Text } from 'react-native';
 import { Camera, useCameraDevice, useCameraPermission } from 'react-native-vision-camera';
 import RNFS from 'react-native-fs';
+import { supabase } from '../components/Supabase.js';
+
 
 // import axios from 'axios';
 
@@ -33,6 +35,7 @@ const CameraScreen = ({ navigation }) => {
     console.log("Photo captured:", photo.path);
 
 
+
     
   const formData = new FormData();
   formData.append('photo', {
@@ -41,7 +44,9 @@ const CameraScreen = ({ navigation }) => {
     name: 'photo.jpg',
   });
 
-  const response = await fetch('https://7317-82-7-110-137.ngrok-free.app/upload', {
+  
+
+  const response = await fetch('https://ff13-82-7-110-137.ngrok-free.app/upload', {
     method: 'POST',
     body: formData,
     headers: {
@@ -50,11 +55,30 @@ const CameraScreen = ({ navigation }) => {
     },
   });
 
-  const data = await response.json();
-  console.log('Uploaded Photo URL:', data.photoUrl);
+  console.log("FormData for upload:", formData);
 
-  
-};
+
+
+  const data = await response.json();
+  console.log('Response for PhotoURL:', data.photoUrl);
+
+
+  // Save the photo URL to Supabase
+  const { info, error } = await supabase
+  .from('photos') // Replace 'photos' with your actual table name
+  .insert([{ url: data.photoUrl }])
+  .select()
+
+
+
+
+
+if (error) {
+  console.error('Error saving photo URL to Supabase:', error);
+} else if (info) {
+  console.log('Photo URL saved to Supabase:', info[0].url);
+}
+  };
 
   const onStartRecording = async () => {
     if (!camera.current) return;
@@ -90,6 +114,10 @@ const CameraScreen = ({ navigation }) => {
 
         <Pressable onPress={() => navigation.navigate('Map')} style={styles.captureButton}>
           <Text style={styles.buttonText}>Go to Map</Text>
+        </Pressable>
+
+        <Pressable onPress={() => navigation.navigate('Swipe')} style={styles.captureButton}>
+          <Text style={styles.buttonText}>Go to Swoipe</Text>
         </Pressable>
 
       </View>

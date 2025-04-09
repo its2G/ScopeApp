@@ -9,3 +9,7 @@
 
 ## 05/04/2025
 #### I have began to implement the Swipe Engine, similar to Tinder Swiping Engine. I am successful in fetching the Image URL's stored on my Supabase server and fetching them to my Swipescreen. Soon enough, I will have various images that will allow for users to swipe left and right on images. 
+
+
+## 09/04/2025
+#### Swipe engine is working. Got it to display all the images from the 'Photos' Table. Now I am working on how all the photos that have already been swiped on, does not appear again. 

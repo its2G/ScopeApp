@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { StyleSheet, Text, View , Image} from 'react-native';
-import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
 import Swiper from "react-native-deck-swiper";
 import { supabase } from '../components/Supabase';
 
@@ -18,7 +17,6 @@ const Card = ({ card }) => (
     </View>
 )
 
-
 const SwipeScreen = () => {
 const [images, setImages] = React.useState(null);
 const [loading, setLoading] = React.useState(false);
@@ -28,6 +26,32 @@ const onSwiped = () => {
   setIndex(index + 1);
 };
 
+const handleSwipe = async (index,liked) => {
+  const swipedCard = images[index];
+  
+
+  await supabase.from('swipes').insert({
+    photo_id: swipedCard.url,
+    liked: liked,
+    created_at: new Date()
+  }); 
+
+  // console.log(`User ${liked ? 'liked' : 'disliked'} photo`, swipedCard.url);
+  console.log("Swiped card:", swipedCard);
+
+};
+
+// const { data: swipedData, error: swipedError } = await supabase
+//   .from('swipes')
+//   .select('*')
+//   .eq('user_id', userId); // Replace with actual user ID
+
+//   const swipedPhotoIds = swipedData.map((row)) => row.photo_id;
+
+  
+
+
+
 useEffect(() => {
 const DisplayAnImage = async () => {
 try{
@@ -35,8 +59,6 @@ try{
   const { data, error } = await supabase
     .from('photos')
     .select('url')
-    // .eq('id', 14); // Replace with the actual ID of the photo you want to display
-
   console.log("Supabase response:", data, error);
 
   if (error) throw error;
@@ -67,37 +89,23 @@ if (!images || images.length === 0) {
                            
 return (
   <View style ={styles.container}>
-  <Swiper
-    cards={images}
-    cardIndex={index}
-    renderCard={card => <Card card={card} />}
-    onSwiper={onSwiped}
-    stackSize={4}
-    stackScale={10}
-    stackSeparation={14}
+    <Swiper
+      cards={images}
+      cardIndex={index}
+      renderCard={card => <Card card={card} />}
+      onSwipedLeft={(index) => handleSwipe(index, false)}   
+      onSwipedRight={(index) => handleSwipe(index, true)}
+      onSwiped={onSwiped}
+      stackSize={4}
+      stackScale={10}
+      stackSeparation={14}
+      disableBottomSwipe
+      disableTopSwipe
+      
     />
-    </View>
+  </View>
   );
 };
-
-//   <SafeAreaProvider>
-//     <SafeAreaView style={styles.container}>
-//       {loading ? (
-//         <Text>Loading...</Text> // Show loading message
-//       ) : error ? (
-//         <Text style={styles.errorText}>Error: {error}</Text> // Show error message
-//       ) : images ? (
-//         <Image
-//   style={styles.image}
-//   source={{ uri: images[0].url }}
-// />
-//       ) : (
-//         <Text>No image available</Text> // Handle case where no image is found
-//       )}
-//     </SafeAreaView>
-//   </SafeAreaProvider>
-//   );
-// };
 
 export default SwipeScreen;
 

@@ -46,7 +46,7 @@ const CameraScreen = ({ navigation }) => {
 
   
 
-  const response = await fetch('https://78e3-82-7-110-137.ngrok-free.app/upload', {
+  const response = await fetch('https://e706-82-7-110-137.ngrok-free.app/upload', {
     method: 'POST',
     body: formData,
     headers: {
@@ -117,7 +117,7 @@ if (error) {
         </Pressable>
 
         <Pressable onPress={() => navigation.navigate('Swipe')} style={styles.captureButton}>
-          <Text style={styles.buttonText}>Go to Swoipe</Text>
+          <Text style={styles.buttonText}>Go to Swipe</Text>
         </Pressable>
 
       </View>

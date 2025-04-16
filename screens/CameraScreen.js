@@ -8,7 +8,7 @@ import { supabase } from '../components/Supabase.js';
 
 // import axios from 'axios';
 
-const CameraScreen = ({ navigation }) => {
+const CameraScreen = ({ navigation, route }) => {
   const device = useCameraDevice('back');
   const { hasPermission, requestPermission } = useCameraPermission();
   const camera = useRef(null);
@@ -25,6 +25,15 @@ const CameraScreen = ({ navigation }) => {
   if (!device) return <Text>Camera device not found</Text>;
 
   const onTakePicture = async () => {
+
+    try {
+      const { regionId } = route.params;
+  
+      if (!regionId) {
+        console.error('Missing regionId in route params');
+        return;
+      }
+    
     if (!camera.current) return;
     const photo = await camera.current.takePhoto();
 
@@ -46,7 +55,7 @@ const CameraScreen = ({ navigation }) => {
 
   
 
-  const response = await fetch('https://e706-82-7-110-137.ngrok-free.app/upload', {
+  const response = await fetch('https://794f-82-7-110-137.ngrok-free.app/upload', {
     method: 'POST',
     body: formData,
     headers: {
@@ -64,20 +73,25 @@ const CameraScreen = ({ navigation }) => {
 
 
   // Save the photo URL to Supabase
-  const { info, error } = await supabase
+  const { data: insertData, error } = await supabase
   .from('photos') // Replace 'photos' with your actual table name
-  .insert([{ url: data.photoUrl }])
+  .insert([{ 
+      url: data.photoUrl,
+      region_id: regionId,
+     }]) // Adjust the column names as per your table structure
   .select()
 
 
+  if (error) {
+    console.error('Error saving photo to Supabase:', error);
+  } else {
+    console.log('Photo saved to Supabase:', insertData[0]);
+  }
 
-
-
-if (error) {
-  console.error('Error saving photo URL to Supabase:', error);
-} else if (info) {
-  console.log('Photo URL saved to Supabase:', info[0].url);
+} catch (error) {
+  console.error('onTakePicture error:', error);
 }
+
   };
 
   const onStartRecording = async () => {

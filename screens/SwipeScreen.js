@@ -26,49 +26,63 @@ const onSwiped = () => {
   setIndex(index + 1);
 };
 
-const handleSwipe = async (index,liked) => {
-  const swipedCard = images[index];
-  
+const handleSwipe = async (index, liked) => {
+  try {
+    const swipedCard = images[index];
+    console.log("Attempting to save swipe for:", swipedCard.url);
+    console.log("Attempting to save swipe for:", swipedCard.id);
 
-  await supabase.from('swipes').insert({
-    photo_id: swipedCard.url,
-    liked: liked,
-    created_at: new Date()
-  }); 
-
-  // console.log(`User ${liked ? 'liked' : 'disliked'} photo`, swipedCard.url);
-  console.log("Swiped card:", swipedCard);
-
+    // this inserts a new row into the swipes table // 
+    const { data, error } = await supabase.from('swipes').insert({
+      photo_URL: swipedCard.url,
+      photo_ID: swipedCard.id,
+      liked: liked,
+      created_at: new Date()
+    });
+    
+    if (error) throw error;
+    
+    console.log("Swipe saved successfully:", data);
+  } catch (err) {
+    console.error("Failed to save swipe:", err.message);
+    setError("Failed to save swipe: " + err.message);
+  }
 };
-
-// const { data: swipedData, error: swipedError } = await supabase
-//   .from('swipes')
-//   .select('*')
-//   .eq('user_id', userId); // Replace with actual user ID
-
-//   const swipedPhotoIds = swipedData.map((row)) => row.photo_id;
-
-  
 
 
 
 useEffect(() => {
-const DisplayAnImage = async () => {
-try{
-  setLoading(true);
-  const { data, error } = await supabase
-    .from('photos')
-    .select('url')
-  console.log("Supabase response:", data, error);
+  const DisplayAnImage = async () => {
+    try{
+      setLoading(true);
 
-  if (error) throw error;
-  setImages(data);
-} catch (err) { 
-  setError(err.message);
-  console.error('Error fetching image:', err);
-} finally {
-  setLoading(false);
-}
+      const {data: swipes, error: swipeError} = await supabase
+        .from('swipes')
+        .select('photo_ID');
+
+      if (swipeError) throw swipeError;
+
+
+      // making sure that the photos do not appear again in the swiping screen // 
+      const swipedUrls = swipes.map((s) => s.photo_ID);
+
+      const { data, error } = await supabase
+        .from('photos')
+        .select('url, id')
+        .filter('id', 'not.in', `(${swipedUrls.join(',')})`)
+
+        if (error) throw error;
+
+      console.log("Supabase response:", data, error);
+
+      // inserted the data into the images state // 
+      setImages(data);
+    } catch (err) { 
+      setError(err.message);
+      console.error('Error fetching image:', err);
+    } finally {
+      setLoading(false);
+    }
 };
 
 DisplayAnImage();

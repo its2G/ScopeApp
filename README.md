@@ -13,3 +13,6 @@
 
 ## 09/04/2025
 #### Swipe engine is working. Got it to display all the images from the 'Photos' Table. Now I am working on how all the photos that have already been swiped on, does not appear again. 
+
+## 16/04/2025
+#### I was undergoing issues with trying to upload my swiping data to my Supabase Table. Also, now each photo is labelled with it's own ID. This makes it easy tracking down each photo. I plan in the future creating a User table so that the swiping information is connected to each user. 

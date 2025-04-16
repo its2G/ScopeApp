@@ -1,69 +1,10 @@
-import React, { useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import MapView, { PROVIDER_GOOGLE, Circle  } from 'react-native-maps';
+import React, { useEffect, useState, useRef } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, DeviceEventEmitter } from 'react-native';
+import MapView, { PROVIDER_GOOGLE, Circle, Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import * as TaskManager from 'expo-task-manager';
-import * as Notifications from 'expo-notifications'; 
+import * as Notifications from 'expo-notifications';
 import { supabase } from '../components/Supabase.js';
-
-
-// start //  
-
-
-// Function to insert data when entering a geofenced area
-async function enterGeofencedArea(personId, areaId) {
-  try {
-    const { data, error } = await supabase
-      .from('area_entities')
-      .insert([
-        {
-          person_id: personId,
-          area_id: areaId,
-          is_in_area: true,
-        },
-      ]);
-
-    if (error) {
-      console.error(error);
-    } else {
-      console.log('Entered geofenced area:', data);
-    }
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-// Function to update data when leaving a geofenced area
-async function leaveGeofencedArea(personId, areaId) {
-  try {
-    const { data, error } = await supabase
-      .from('area_entities')
-      .update([
-        {
-          person_id: personId,
-          area_id: areaId,
-          is_in_area: false,
-          left_at: new Date().toISOString(),
-        },
-      ])
-      .eq('person_id', personId)
-      .eq('area_id', areaId)
-      .eq('is_in_area', true);
-
-    if (error) {
-      console.error(error);
-    } else {
-      console.log('Left geofenced area:', data);
-    }
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-const personId = '550e8400-e29b-41d4-a716-446655440000'; // Replace with a valid UUID
-const areaId = '123e4567-e89b-12d3-a456-426614174000';   // Replace with a valid UUID
-
-// END // //////////////////////////////////////////////////////////////
 
 const GEOFENCE_TASK = 'geofence-task';
 
@@ -73,28 +14,21 @@ TaskManager.defineTask(GEOFENCE_TASK, async ({ data, error }) => {
     return;
   }
 
-
   if (data) {
-    console.log("Geofencing Data Received:", data); // Log the data to confirm the task is triggered
     const { eventType, region } = data;
+    console.log("Geofencing event:", eventType, region);
+
     if (eventType === Location.GeofencingEventType.Enter) {
-      console.log(`Entered the region: ${region.identifier}`);
-
-      enterGeofencedArea(personId, areaId);
-
-
-      //Triggering notifications
+      DeviceEventEmitter.emit('regionEntered', region);
       await Notifications.scheduleNotificationAsync({
         content: {
           title: "Geofence Alert",
-          body: `Entering the ${region.identifier} area.`,
+          body: `You've entered ${region.identifier}`,
         },
         trigger: null,
       });
-      console.log("Notification scheduled"); // Log to confirm the notification is scheduled
     } else if (eventType === Location.GeofencingEventType.Exit) {
-      leaveGeofencedArea(personId, areaId);
-      console.log(`Exited the region: ${region.identifier}`);
+      DeviceEventEmitter.emit('regionExited', region);
     }
   }
 });
@@ -107,21 +41,40 @@ Notifications.setNotificationHandler({
   }),
 });
 
-const region = {
-  identifier: 'BigBen',
-  latitude: 51.572192,
-  
-  longitude: -0.412941,
-  radius: 10,
-};
+export default function MapScreen({ navigation }) {
+  const [regions, setRegions] = useState([]);
+  const [activeRegion, setActiveRegion] = useState(null);
+  const regionsRef = useRef([]);
 
-
-
-
-
-export default function App() {
   useEffect(() => {
-    const requestPermissionsAndSetup = async () => {
+    const loadRegions = async () => {
+      const { data, error } = await supabase.from('regions').select('*');
+      if (error) {
+        console.error("Error fetching regions:", error.message);
+        return;
+      }
+      setRegions(data);
+      regionsRef.current = data;
+
+      // Slight delay to ensure everything is ready before starting geofencing
+      await new Promise(res => setTimeout(res, 500));
+
+      await Location.startGeofencingAsync(
+        GEOFENCE_TASK,
+        data.map(region => ({
+          identifier: region.identifier,
+          latitude: region.latitude,
+          longitude: region.longitude,
+          radius: region.radius,
+        }))
+      );
+    };
+
+    loadRegions();
+  }, []);
+
+  useEffect(() => {
+    const setupPermissions = async () => {
       const { status: foregroundStatus } = await Location.requestForegroundPermissionsAsync();
       if (foregroundStatus !== 'granted') {
         console.log("Foreground location permission not granted.");
@@ -134,31 +87,46 @@ export default function App() {
         return;
       }
 
-    // Request notification permissions
-    const { status: notificationStatus } = await Notifications.requestPermissionsAsync();
-    if (notificationStatus !== 'granted') {
-      console.log("Notification permission not granted.");
-      return;
-    }
+      const { status: notificationStatus } = await Notifications.requestPermissionsAsync();
+      if (notificationStatus !== 'granted') {
+        console.log("Notification permission not granted.");
+        return;
+      }
 
-      await Location.startGeofencingAsync(GEOFENCE_TASK, [region]);
-      console.log("Geofencing started");
-
-  const isTaskRegistered = await TaskManager.isTaskRegisteredAsync(GEOFENCE_TASK);
-  console.log("Is Geofencing Task Registered?", isTaskRegistered);
-      
+      console.log("Permissions granted and setup complete");
     };
 
-    
+    setupPermissions();
+  }, []);
 
-    requestPermissionsAndSetup();
+  useEffect(() => {
+    const enterListener = DeviceEventEmitter.addListener('regionEntered', (incomingRegion) => {
+      console.log('Entered region:', incomingRegion);
+      const matched = regionsRef.current.find(r => r.identifier === incomingRegion.identifier);
+      if (matched) {
+        console.log('Matched region from Supabase:', matched);
+        setActiveRegion(matched);
+      } else {
+        console.log('Region not found in Supabase:', incomingRegion.identifier);
+      }
+    });
+
+    const exitListener = DeviceEventEmitter.addListener('regionExited', (incomingRegion) => {
+      console.log('Exited region:', incomingRegion);
+      setActiveRegion(null);
+    });
+
+    return () => {
+      enterListener.remove();
+      exitListener.remove();
+    };
   }, []);
 
   return (
     <View style={styles.container}>
       <MapView
         style={styles.map}
-        provider={PROVIDER_GOOGLE} // Add the provider property
+        provider={PROVIDER_GOOGLE}
         initialRegion={{
           latitude: 51.5007,
           longitude: -0.1246,
@@ -167,9 +135,42 @@ export default function App() {
         }}
         showsUserLocation={true}
       >
-        <Circle center={region} radius={region.radius} strokeColor="rgba(0,0,255,0.adb5)" fillColor="rgba(0,0,255,0.2)" />
+        {regions.map((region) => (
+          <React.Fragment key={region.identifier}>
+            <Circle
+              center={{ latitude: region.latitude, longitude: region.longitude }}
+              radius={region.radius}
+              strokeColor="rgba(0,0,255,0.5)"
+              fillColor="rgba(0,0,255,0.2)"
+            />
+            <Marker
+              coordinate={{ latitude: region.latitude, longitude: region.longitude }}
+              title={region.name || region.identifier}
+              description={`Geofence: ${region.name || region.identifier}`}
+            />
+          </React.Fragment>
+        ))}
       </MapView>
-      <Text style={styles.infoText}>Geofencing enabled for Big Ben</Text>
+
+      {activeRegion && (
+        <View style={styles.cameraButtonWrapper}>
+          <Text style={styles.infoText}>You're in {activeRegion.identifier}</Text>
+          <TouchableOpacity
+            style={styles.cameraButton}
+            onPress={() => {
+              console.log('Navigating with region:', activeRegion);
+              console.log('Navigating to CameraScreen with regionId:', activeRegion.regionID);
+              navigation.navigate('Camera', { regionId: activeRegion.regionID });
+            }}
+          >
+            <Text style={styles.cameraButtonText}>📷 Take Photo</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {!activeRegion && (
+        <Text style={styles.infoText}>Walk into a blue zone to take photos</Text>
+      )}
     </View>
   );
 }
@@ -179,17 +180,34 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   map: {
-    width: 500,
-    height: 1000,
+    width: '100%',
+    height: '100%',
   },
   infoText: {
     position: 'absolute',
-    bottom: 20,
+    bottom: 140,
     alignSelf: 'center',
     backgroundColor: 'white',
     padding: 10,
     borderRadius: 5,
     fontSize: 16,
     color: 'black',
+  },
+  cameraButtonWrapper: {
+    position: 'absolute',
+    bottom: 70,
+    alignSelf: 'center',
+    alignItems: 'center',
+  },
+  cameraButton: {
+    backgroundColor: '#007bff',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+  },
+  cameraButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });

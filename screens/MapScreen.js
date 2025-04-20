@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, DeviceEventEmitter } from 'react-native';
 import MapView, { PROVIDER_GOOGLE, Circle, Marker } from 'react-native-maps';
+import { useNavigation } from '@react-navigation/native';
 import * as Location from 'expo-location';
 import * as TaskManager from 'expo-task-manager';
 import * as Notifications from 'expo-notifications';
@@ -41,7 +42,7 @@ Notifications.setNotificationHandler({
   }),
 });
 
-export default function MapScreen({ navigation }) {
+export default function MapScreen({navigation}) {
   const [regions, setRegions] = useState([]);
   const [activeRegion, setActiveRegion] = useState(null);
   const regionsRef = useRef([]);

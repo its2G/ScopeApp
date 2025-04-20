@@ -97,8 +97,8 @@ if (error) {
   return <Text style={{ color: 'red' }}>Error: {error}</Text>;
 }
 
-if (!images || images.length === 0) {
-  return <Text>No images available</Text>;
+if (!images || !Array.isArray(images) || images.length === 0) {
+  return <Text style={{ textAlign: 'center', marginTop: 100 }}>No photos to swipe on</Text>;
 }
                            
 return (

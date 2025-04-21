@@ -21,3 +21,6 @@
 
 ## 16/04/2025
 #### I was undergoing issues with trying to upload my swiping data to my Supabase Table. Also, now each photo is labelled with it's own ID. This makes it easy tracking down each photo. I plan in the future creating a User table so that the swiping information is connected to each user. 
+
+## 21/04/2025
+#### I have created an authentication system with the help of Supabase, which allows users to sign up / login. This will safe the users data. Also, this guarantees that each user who's logged in, to save their photos onto the database and can be extracted to their profile page (which I plan on completing very soon). 

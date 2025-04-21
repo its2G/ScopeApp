@@ -71,6 +71,13 @@ const CameraScreen = ({ navigation, route }) => {
   const data = await response.json();
   console.log('Response for PhotoURL:', data.photoUrl);
 
+  const { data: { user }, error: userError } = await supabase.auth.getUser()
+
+  if (userError || !user) {
+    console.error('Error fetching user:', userError);
+    return;
+  }
+
 
   // Save the photo URL to Supabase
   const { data: insertData, error } = await supabase
@@ -78,6 +85,7 @@ const CameraScreen = ({ navigation, route }) => {
   .insert([{ 
       url: data.photoUrl,
       region_id: regionId,
+      user_id: user.id, // Assuming you have a user_id column in your table
      }]) // Adjust the column names as per your table structure
   .select()
 

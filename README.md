@@ -27,3 +27,4 @@
 
 ## 25/04/2025
 #### I have made changes in the mapscreen, allowing for the markers to become clickable. Once clicked on, photos will appear for all the photos that are taken within the area. Also, changes have been made to the mapscreen, meaning that when a user enters the permitted region, the 'swipebutton' will appear, relocating users to the swipescreen. The changes made in the swipe screen is that only photos taken in the area will show up in the swipescreen and users will only have access to liking / disliking photos of that area when clicking the swipe button of that region. 
+#### 04:13 - made changes to the swiping screen, now fixing issue where swiping on content does not affect other users

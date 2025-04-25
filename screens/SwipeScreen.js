@@ -37,10 +37,20 @@ const handleSwipe = async (index, liked) => {
     console.log("Attempting to save swipe for:", swipedCard.url);
     console.log("Attempting to save swipe for:", swipedCard.id);
 
+
+  const { data: { user }, error: userError } = await supabase.auth.getUser()
+
+  if (userError || !user) {
+    console.error('Error fetching user:', userError);
+    return;
+  }
+
+
     // this inserts a new row into the swipes table // 
     const { data, error } = await supabase.from('swipes').insert({
       photo_URL: swipedCard.url,
       photo_ID: swipedCard.id,
+      user_id: user.id,
       liked: liked,
       created_at: new Date()
     });
@@ -57,37 +67,44 @@ const handleSwipe = async (index, liked) => {
 
 
 useEffect(() => {
-
-
-
   const DisplayAnImage = async () => {
     try{
       setLoading(true);
 
+
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
+
+      if (userError || !user) {
+        console.error('Error fetching user:', userError);
+        return;
+      }
+
       const {data: swipes, error: swipeError} = await supabase
         .from('swipes')
-        .select('photo_ID');
-
-      if (swipeError) throw swipeError;
+        .select('photo_ID')
+        .eq('user_id', user.id) // Assuming you have a user_id column in your swipes table
+      
+    
+        if (swipeError) throw swipeError;
 
 
       // making sure that the photos do not appear again in the swiping screen // 
-      const swipedUrls = swipes.map((s) => s.photo_ID);
-
-
-      const { regionId } = route.params; // Get the regionId from the route params
-
-      const { data, error } = await supabase
+      const swipedPhotoIds = swipes.map((s) => s.photo_ID);
+    const { regionId } = route.params; // Get the regionId from the route params
+     // Start building photo query
+      let photoQuery = supabase
         .from('photos')
         .select('url, id')
-        .eq('region_id', regionId)
-        .filter('id', 'not.in', `(${swipedUrls.join(',')})`)
+        .eq('region_id', regionId);
 
+      // Only exclude photos if the user has swiped on any
+      if (swipedPhotoIds.length > 0) {
+        photoQuery = photoQuery.filter('id', 'not.in', `(${swipedPhotoIds.join(',')})`);
+      }
 
-    
-        if (error) throw error;
-      
-      console.log("Supabase response:", data, error);
+      const { data, error } = await photoQuery;
+
+      if (error) throw error;
 
       // inserted the data into the images state // 
       setImages(data);

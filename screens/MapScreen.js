@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import {
   StyleSheet, Text, View, TouchableOpacity, DeviceEventEmitter,
-  Button, Modal, ScrollView, Image, Pressable
+  Button, Modal, ScrollView, Image, Pressable, Alert,
 } from 'react-native';
 import MapView, { PROVIDER_GOOGLE, Circle, Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
@@ -87,6 +87,18 @@ export default function MapScreen({ navigation }) {
   const [selectedRegionId, setSelectedRegionId] = useState(null);
   const regionsRef = useRef([]);
 
+
+  const handleSignOut = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      Alert.alert('Sign Out Error', error.message);
+    } else {
+      console.log("Signed out successfully");
+      // App.js will automatically switch to the Auth screen
+    }
+  };
+  
+
   // Load geofence regions
   useEffect(() => {
     const loadRegions = async () => {
@@ -105,6 +117,8 @@ export default function MapScreen({ navigation }) {
         longitude: region.longitude,
         radius: region.radius,
       })));
+
+
 
    // Check if user is already in a region
    const location = await Location.getCurrentPositionAsync({});
@@ -171,6 +185,9 @@ export default function MapScreen({ navigation }) {
         }}
         showsUserLocation
       >
+
+
+
         {regions.map(region => (
           <React.Fragment key={region.identifier}>
             <Circle
@@ -191,6 +208,9 @@ export default function MapScreen({ navigation }) {
           </React.Fragment>
         ))}
       </MapView>
+      <View style={styles.signOutButtonWrapper}>
+      <Button title="Sign Out" onPress={handleSignOut} />
+    </View>
 
       <PhotoGalleryOverlay
         visible={isOverlayVisible}
@@ -206,6 +226,9 @@ export default function MapScreen({ navigation }) {
           <Text style={styles.buttonText}>Go to Swipe</Text>
         </Pressable>
         </View>
+
+
+
         <View style={styles.cameraButtonWrapper}>
           <Text style={styles.infoText}>You're in {activeRegion.identifier}</Text>
           <TouchableOpacity
@@ -272,6 +295,12 @@ const styles = StyleSheet.create({
     bottom: 120,
     alignSelf: 'center',
     alignItems: 'center',
+  },
+  signOutButtonWrapper: {
+    position: 'absolute',
+    alignSelf: 'center',
+    alignItems: 'center',
+    top : 50,
   },
   cameraButton: {
     backgroundColor: '#007bff',

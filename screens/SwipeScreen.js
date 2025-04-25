@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { StyleSheet, Text, View , Image} from 'react-native';
 import Swiper from "react-native-deck-swiper";
+import { useRoute } from '@react-navigation/native';
 import { supabase } from '../components/Supabase';
 
 const colors = {
@@ -22,6 +23,10 @@ const [images, setImages] = React.useState(null);
 const [loading, setLoading] = React.useState(false);
 const [error, setError] = React.useState(null);
 const [index, setIndex] = React.useState(0);
+const route = useRoute();
+
+
+
 const onSwiped = () => {
   setIndex(index + 1);
 };
@@ -52,6 +57,9 @@ const handleSwipe = async (index, liked) => {
 
 
 useEffect(() => {
+
+
+
   const DisplayAnImage = async () => {
     try{
       setLoading(true);
@@ -66,13 +74,19 @@ useEffect(() => {
       // making sure that the photos do not appear again in the swiping screen // 
       const swipedUrls = swipes.map((s) => s.photo_ID);
 
+
+      const { regionId } = route.params; // Get the regionId from the route params
+
       const { data, error } = await supabase
         .from('photos')
         .select('url, id')
+        .eq('region_id', regionId)
         .filter('id', 'not.in', `(${swipedUrls.join(',')})`)
 
-        if (error) throw error;
 
+    
+        if (error) throw error;
+      
       console.log("Supabase response:", data, error);
 
       // inserted the data into the images state // 
@@ -83,6 +97,7 @@ useEffect(() => {
     } finally {
       setLoading(false);
     }
+    
 };
 
 DisplayAnImage();

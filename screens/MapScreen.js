@@ -1,14 +1,17 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, DeviceEventEmitter } from 'react-native';
+import {
+  StyleSheet, Text, View, TouchableOpacity, DeviceEventEmitter,
+  Button, Modal, ScrollView, Image, Pressable
+} from 'react-native';
 import MapView, { PROVIDER_GOOGLE, Circle, Marker } from 'react-native-maps';
-import { useNavigation } from '@react-navigation/native';
 import * as Location from 'expo-location';
 import * as TaskManager from 'expo-task-manager';
 import * as Notifications from 'expo-notifications';
-import { supabase } from '../components/Supabase.js';
+import { supabase } from '../components/Supabase';
 
 const GEOFENCE_TASK = 'geofence-task';
 
+// Geofence background task
 TaskManager.defineTask(GEOFENCE_TASK, async ({ data, error }) => {
   if (error) {
     console.error("Geofencing Error:", error);
@@ -17,8 +20,6 @@ TaskManager.defineTask(GEOFENCE_TASK, async ({ data, error }) => {
 
   if (data) {
     const { eventType, region } = data;
-    console.log("Geofencing event:", eventType, region);
-
     if (eventType === Location.GeofencingEventType.Enter) {
       DeviceEventEmitter.emit('regionEntered', region);
       await Notifications.scheduleNotificationAsync({
@@ -42,11 +43,51 @@ Notifications.setNotificationHandler({
   }),
 });
 
-export default function MapScreen({navigation}) {
+// PhotoGallery Component
+const PhotoGalleryOverlay = ({ visible, regionId, onClose }) => {
+  const [photos, setPhotos] = useState([]);
+
+  useEffect(() => {
+    const fetchPhotos = async () => {
+      const { data, error } = await supabase
+        .from('photos')
+        .select('*')
+        .eq('region_id', regionId);
+
+      if (error) {
+        console.error("Error fetching photos:", error.message);
+      } else {
+        setPhotos(data);
+      }
+    };
+
+    if (visible && regionId) {
+      fetchPhotos();
+    }
+  }, [visible, regionId]);
+
+  return (
+    <Modal visible={visible} animationType="slide" transparent>
+      <View style={styles.overlayContainer}>
+        <ScrollView>
+          {photos.map(photo => (
+            <Image key={photo.id} source={{ uri: photo.url }} style={styles.photo} />
+          ))}
+        </ScrollView>
+        <Button title="Close" onPress={onClose} />
+      </View>
+    </Modal>
+  );
+};
+
+export default function MapScreen({ navigation }) {
   const [regions, setRegions] = useState([]);
   const [activeRegion, setActiveRegion] = useState(null);
+  const [isOverlayVisible, setOverlayVisible] = useState(false);
+  const [selectedRegionId, setSelectedRegionId] = useState(null);
   const regionsRef = useRef([]);
 
+  // Load geofence regions
   useEffect(() => {
     const loadRegions = async () => {
       const { data, error } = await supabase.from('regions').select('*');
@@ -57,63 +98,57 @@ export default function MapScreen({navigation}) {
       setRegions(data);
       regionsRef.current = data;
 
-      // Slight delay to ensure everything is ready before starting geofencing
-      await new Promise(res => setTimeout(res, 500));
+      await new Promise(res => setTimeout(res, 500)); // slight delay
+      await Location.startGeofencingAsync(GEOFENCE_TASK, data.map(region => ({
+        identifier: region.identifier,
+        latitude: region.latitude,
+        longitude: region.longitude,
+        radius: region.radius,
+      })));
 
-      await Location.startGeofencingAsync(
-        GEOFENCE_TASK,
-        data.map(region => ({
-          identifier: region.identifier,
-          latitude: region.latitude,
-          longitude: region.longitude,
-          radius: region.radius,
-        }))
-      );
-    };
+   // Check if user is already in a region
+   const location = await Location.getCurrentPositionAsync({});
+   const { latitude, longitude } = location.coords;
+
+   for (let region of data) {
+     const distance = Math.sqrt(
+       Math.pow(latitude - region.latitude, 2) +
+       Math.pow(longitude - region.longitude, 2)
+     ) * 111000;
+
+     if (distance <= region.radius) {
+       console.log("User is already inside region:", region.identifier);
+       setActiveRegion(region);
+       break;
+     }
+   }
+};
 
     loadRegions();
   }, []);
 
+  // Setup permissions
   useEffect(() => {
     const setupPermissions = async () => {
-      const { status: foregroundStatus } = await Location.requestForegroundPermissionsAsync();
-      if (foregroundStatus !== 'granted') {
-        console.log("Foreground location permission not granted.");
-        return;
-      }
+      const { status: fg } = await Location.requestForegroundPermissionsAsync();
+      const { status: bg } = await Location.requestBackgroundPermissionsAsync();
+      const { status: noti } = await Notifications.requestPermissionsAsync();
 
-      const { status: backgroundStatus } = await Location.requestBackgroundPermissionsAsync();
-      if (backgroundStatus !== 'granted') {
-        console.log("Background location permission not granted.");
-        return;
+      if (fg !== 'granted' || bg !== 'granted' || noti !== 'granted') {
+        console.log("Permissions not granted.");
       }
-
-      const { status: notificationStatus } = await Notifications.requestPermissionsAsync();
-      if (notificationStatus !== 'granted') {
-        console.log("Notification permission not granted.");
-        return;
-      }
-
-      console.log("Permissions granted and setup complete");
     };
-
     setupPermissions();
   }, []);
 
+  // Handle geofence enter/exit
   useEffect(() => {
     const enterListener = DeviceEventEmitter.addListener('regionEntered', (incomingRegion) => {
-      console.log('Entered region:', incomingRegion);
       const matched = regionsRef.current.find(r => r.identifier === incomingRegion.identifier);
-      if (matched) {
-        console.log('Matched region from Supabase:', matched);
-        setActiveRegion(matched);
-      } else {
-        console.log('Region not found in Supabase:', incomingRegion.identifier);
-      }
+      if (matched) setActiveRegion(matched);
     });
 
-    const exitListener = DeviceEventEmitter.addListener('regionExited', (incomingRegion) => {
-      console.log('Exited region:', incomingRegion);
+    const exitListener = DeviceEventEmitter.addListener('regionExited', () => {
       setActiveRegion(null);
     });
 
@@ -134,9 +169,9 @@ export default function MapScreen({navigation}) {
           latitudeDelta: 0.05,
           longitudeDelta: 0.05,
         }}
-        showsUserLocation={true}
+        showsUserLocation
       >
-        {regions.map((region) => (
+        {regions.map(region => (
           <React.Fragment key={region.identifier}>
             <Circle
               center={{ latitude: region.latitude, longitude: region.longitude }}
@@ -148,26 +183,44 @@ export default function MapScreen({navigation}) {
               coordinate={{ latitude: region.latitude, longitude: region.longitude }}
               title={region.name || region.identifier}
               description={`Geofence: ${region.name || region.identifier}`}
+              onPress={() => {
+                setSelectedRegionId(region.regionID);
+                setOverlayVisible(true);
+              }}
             />
           </React.Fragment>
         ))}
       </MapView>
 
+      <PhotoGalleryOverlay
+        visible={isOverlayVisible}
+        regionId={selectedRegionId}
+        onClose={() => setOverlayVisible(false)}
+      />
+
       {activeRegion && (
+        <>
+        <View style={styles.swipeButtonWrapper}>
+        <Pressable onPress={() => navigation.navigate('Swipe', { regionId: activeRegion.regionID })} 
+          style={styles.captureButton}>
+          <Text style={styles.buttonText}>Go to Swipe</Text>
+        </Pressable>
+        </View>
         <View style={styles.cameraButtonWrapper}>
           <Text style={styles.infoText}>You're in {activeRegion.identifier}</Text>
           <TouchableOpacity
             style={styles.cameraButton}
             onPress={() => {
-              console.log('Navigating with region:', activeRegion);
-              console.log('Navigating to CameraScreen with regionId:', activeRegion.regionID);
               navigation.navigate('Camera', { regionId: activeRegion.regionID });
             }}
           >
             <Text style={styles.cameraButtonText}>📷 Take Photo</Text>
           </TouchableOpacity>
         </View>
+        </>
       )}
+
+    
 
       {!activeRegion && (
         <Text style={styles.infoText}>Walk into a blue zone to take photos</Text>
@@ -183,6 +236,20 @@ const styles = StyleSheet.create({
   map: {
     width: '100%',
     height: '100%',
+  },
+  overlayContainer: {
+    position: 'absolute',
+    bottom: 0,
+    height: '50%',
+    width: '100%',
+    backgroundColor: 'white',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  photo: {
+    width: '100%',
+    height: 300,
+    marginBottom: 10,
   },
   infoText: {
     position: 'absolute',
@@ -200,11 +267,27 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     alignItems: 'center',
   },
+  swipeButtonWrapper: {
+    position: 'absolute',
+    bottom: 120,
+    alignSelf: 'center',
+    alignItems: 'center',
+  },
   cameraButton: {
     backgroundColor: '#007bff',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 10,
+  },
+  buttonText: {
+    padding: 10,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  captureButton: {
+    padding: 10,
+    borderRadius: 10,
+    backgroundColor: 'white',
   },
   cameraButtonText: {
     color: '#fff',

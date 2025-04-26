@@ -212,6 +212,12 @@ export default function MapScreen({ navigation }) {
       <Button title="Sign Out" onPress={handleSignOut} />
     </View>
 
+
+
+    <View style={styles.LeaderboardButtonWrapper}>
+      <Button title="LeaderBoard" onPress={() => navigation.navigate('Leaderboard')} />
+    </View>
+
       <PhotoGalleryOverlay
         visible={isOverlayVisible}
         regionId={selectedRegionId}
@@ -262,8 +268,8 @@ const styles = StyleSheet.create({
   },
   overlayContainer: {
     position: 'absolute',
-    bottom: 0,
-    height: '50%',
+    bottom: 50,
+    height: '70%',
     width: '100%',
     backgroundColor: 'white',
     borderTopLeftRadius: 20,
@@ -301,6 +307,12 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     alignItems: 'center',
     top : 50,
+  },
+  LeaderboardButtonWrapper: {
+    position: 'absolute',
+    alignSelf: 'center',
+    alignItems: 'center',
+    top : 100,
   },
   cameraButton: {
     backgroundColor: '#007bff',

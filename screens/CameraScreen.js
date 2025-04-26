@@ -55,7 +55,7 @@ const CameraScreen = ({ navigation, route }) => {
 
   
 
-  const response = await fetch('https://f605-82-7-110-137.ngrok-free.app/upload', {
+  const response = await fetch('https://cbdb-82-7-110-137.ngrok-free.app/upload', {
     method: 'POST',
     body: formData,
     headers: {

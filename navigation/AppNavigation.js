@@ -6,6 +6,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import MapScreen from '../screens/MapScreen';
 import CameraScreen from '../screens/CameraScreen';
 import SwipeScreen from '../screens/SwipeScreen';
+import LeaderboardScreen from '../screens/LeaderboardScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -16,6 +17,8 @@ const AppNavigation = () => {
         <Stack.Screen name="Map" component={MapScreen} />
         <Stack.Screen name="Camera" component={CameraScreen} />
         <Stack.Screen name="Swipe" component={SwipeScreen} />
+        <Stack.Screen name="Leaderboard" component={LeaderboardScreen} />
+
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -9,12 +9,34 @@
         "googleMaps": {
           "apiKey": "***REMOVED***"
         }
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_BACKGROUND_LOCATION",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_LOCATION"
+      ]
+    },
+    "ios": {
+      "bundleIdentifier": "com.anonymous.expophotography",
+      "buildNumber": "1", // Apply fix #1 here too
+      "infoPlist": {
+        "NSCameraUsageDescription": "Allow ExpoPhotography to use the camera.",
+        "NSLocationWhenInUseUsageDescription": "Allow ExpoPhotography to access your location.",
+        "NSLocationAlwaysUsageDescription": "Allow ExpoPhotography to always access your location.",
+        "NSMicrophoneUsageDescription": "Allow ExpoPhotography to access your microphone.",
+        "NSPhotoLibraryUsageDescription": "Allow ExpoPhotography to access your photo library.",
+        "UIBackgroundModes": [ // <-- Add this section
+          "location"
+        ]
       }
     },
     "splash": {
       "backgroundColor": "#FFFFFF"
     },
-    
     "plugins": [
       [
         "react-native-vision-camera",
@@ -40,6 +62,11 @@
           "enableBackgroundRemoteNotifications": false
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "84a0b396-84f5-4be6-84f0-9e7234caf1ac"
+      }
+    }
   }
 }

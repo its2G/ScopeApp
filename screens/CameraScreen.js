@@ -57,7 +57,7 @@ const CameraScreen = ({ navigation, route }) => {
 
   
 
-  const response = await fetch('https://ef33-82-7-110-137.ngrok-free.app/upload', {
+  const response = await fetch('https://gently-alert-gopher.ngrok-free.app/upload', {
     method: 'POST',
     body: formData,
     headers: {

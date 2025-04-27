@@ -1,15 +1,18 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { StyleSheet, Text, View , Image} from 'react-native';
 import Swiper from "react-native-deck-swiper";
 import { useRoute } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { supabase } from '../components/Supabase';
+import {MaterialCommunirtyIcons, MaterialCommunityIcons} from '@expo/vector-icons';
 
 const colors = {
   red: '#EC2379',
   blue: '#0070FF',
   gray: '#777777',
   white: '#ffffff',
-  black: '#000000'
+  black: '#000000',
+  green: '#19e409',
 };
 
 const Card = ({ card }) => (
@@ -24,6 +27,9 @@ const [loading, setLoading] = React.useState(false);
 const [error, setError] = React.useState(null);
 const [index, setIndex] = React.useState(0);
 const route = useRoute();
+const swiperRef = React.useRef(null);
+const navigation = useNavigation();
+
 
 
 
@@ -32,6 +38,11 @@ const onSwiped = () => {
 };
 
 const handleSwipe = async (index, liked) => {
+  if (!images || !images[index]) {
+    console.log('No photo available to swipe.');
+    return; 
+  }
+
   try {
     const swipedCard = images[index];
     console.log("Attempting to save swipe for:", swipedCard.url);
@@ -120,37 +131,124 @@ useEffect(() => {
 DisplayAnImage();
 }, []);
 
-// Loading, error, and empty image states
-if (loading) {
-  return <Text>Loading...</Text>;
-}
-
-if (error) {
-  return <Text style={{ color: 'red' }}>Error: {error}</Text>;
-}
-
-if (!images || !Array.isArray(images) || images.length === 0) {
-  return <Text style={{ textAlign: 'center', marginTop: 100 }}>No photos to swipe on</Text>;
-}
-                           
+               
 return (
-  <View style ={styles.container}>
-    <Swiper
-      cards={images}
-      cardIndex={index}
-      renderCard={card => <Card card={card} />}
-      onSwipedLeft={(index) => handleSwipe(index, false)}   
-      onSwipedRight={(index) => handleSwipe(index, true)}
-      onSwiped={onSwiped}
-      stackSize={4}
-      stackScale={10}
-      stackSeparation={14}
-      disableBottomSwipe
-      disableTopSwipe
-      
-    />
+  <View style={styles.container}>
+    <View style={styles.topBar}>
+      <MaterialCommunityIcons.Button
+        name="arrow-left"
+        backgroundColor="transparent"
+        underlayColor="transparent"
+        activeOpacity={0.5}
+        color="black"
+        size={30}
+        onPress={() => navigation.goBack()}
+      />
+    </View>
+
+    {loading ? (
+      <View style={styles.center}>
+        <Text>Loading...</Text>
+      </View>
+    ) : error ? (
+      <View style={styles.center}>
+        <Text style={{ color: 'red' }}>Error: {error}</Text>
+      </View>
+    ) : !images || images.length === 0 || index >= images.length ? (
+      <View style={styles.center}>
+        <Text style={styles.noMoreCardsText}>You've seen all the photos!</Text>
+        <Text style={styles.noMoreCardsSubtext}>Check back later for new photos 😉</Text>
+      </View>
+    ) : (
+      <>
+        <View style={styles.swiperContainer}>
+          <Swiper
+            ref={swiperRef}
+            cards={images}
+            cardIndex={index}
+            renderCard={card => card ? <Card key={card.id} card={card} /> : null}
+            onSwipedLeft={i => handleSwipe(i, false)}
+            onSwipedRight={i => handleSwipe(i, true)}
+            onSwiped={onSwiped}
+            stackSize={4}
+            stackScale={10}
+            stackSeparation={14}
+            disableBottomSwipe
+            disableTopSwipe
+            animateCardOpacity
+            animateOverlayLabelsOpacity
+            backgroundColor="transparent"
+            overlayLabels={{
+              left: {
+                title: 'NOPE',
+                style: {
+                  label: {
+                    backgroundColor: colors.red,
+                    borderColor: colors.red,
+                    color: colors.white,
+                    borderWidth: 1,
+                    fontSize: 24,
+                  },
+                  wrapper: {
+                    flexDirection: 'column',
+                    alignItems: 'flex-end',
+                    justifyContent: 'flex-start',
+                    marginTop: 20,
+                    marginLeft: -20,
+                  },
+                },
+              },
+              right: {
+                title: 'LIKE',
+                style: {
+                  label: {
+                    backgroundColor: colors.blue,
+                    borderColor: colors.blue,
+                    color: colors.white,
+                    borderWidth: 1,
+                    fontSize: 24,
+                  },
+                  wrapper: {
+                    flexDirection: 'column',
+                    alignItems: 'flex-start',
+                    justifyContent: 'flex-start',
+                    marginTop: 20,
+                    marginLeft: 20,
+                  },
+                },
+              },
+            }}
+          />
+        </View>
+
+        <View style={styles.bottomContainer}>
+          <View style={styles.bottomContainerButtons}>
+            <MaterialCommunityIcons.Button
+              name="close"
+              size={94}
+              backgroundColor="transparent"
+              underlayColor="transparent"
+              activeOpacity={0.3}
+              color={colors.red}
+              onPress={() => swiperRef.current?.swipeLeft()}
+              disabled={!images || index >= images.length}
+            />
+            <MaterialCommunityIcons.Button
+              name="circle-outline"
+              size={94}
+              backgroundColor="transparent"
+              underlayColor="transparent"
+              activeOpacity={0.3}
+              color={colors.green}
+              onPress={() => swiperRef.current?.swipeRight()}
+              disabled={!images || index >= images.length}
+            />
+          </View>
+        </View>
+      </>
+    )}
   </View>
-  );
+);
 };
 
 export default SwipeScreen;
@@ -159,8 +257,43 @@ export default SwipeScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+  },
+  swiperContainer: {
+    flex: 0.55
+  },
+  bottomContainer: {
+    flex: 0.45,
+    justifyContent: 'space-evenly'
+  },
+  center: {
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+noMoreCardsText: {
+  fontSize: 24,
+  fontWeight: 'bold',
+  color: colors.black,
+  marginBottom: 10,
+},
+topBar: {
+  width: '100%',
+  flexDirection: 'row',
+  justifyContent: 'flex-start',
+  padding: 10,
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  zIndex: 10,
+},
+noMoreCardsSubtext: {
+  fontSize: 16,
+  color: colors.gray,
+  textAlign: 'center',
+},
+  bottomContainerButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly'
   },
   image: {
     width: 200,
@@ -172,12 +305,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     },
     cardImage: {
-    width: 160,
+    width: 350,
     flex: 1,
     resizeMode: 'contain'
   },
   card: {
-    flex: 0.45,
+    flex: 0.65,
     borderRadius: 8,
     shadowRadius: 25,
     shadowColor: colors.black,

@@ -4,6 +4,8 @@ import { View, ActivityIndicator, StyleSheet, Pressable, Text } from 'react-nati
 import { Camera, useCameraDevice, useCameraPermission } from 'react-native-vision-camera';
 import RNFS from 'react-native-fs';
 import { supabase } from '../components/Supabase.js';
+import { useNavigation } from '@react-navigation/native';
+import { MaterialCommunityIcons } from '@expo/vector-icons'; 
 
 
 // import axios from 'axios';
@@ -55,7 +57,7 @@ const CameraScreen = ({ navigation, route }) => {
 
   
 
-  const response = await fetch('https://cbdb-82-7-110-137.ngrok-free.app/upload', {
+  const response = await fetch('https://ef33-82-7-110-137.ngrok-free.app/upload', {
     method: 'POST',
     body: formData,
     headers: {
@@ -124,23 +126,26 @@ const CameraScreen = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
+
+<View style={styles.topBar}>
+      <MaterialCommunityIcons.Button
+        name="arrow-left"
+        backgroundColor="transparent"
+        underlayColor="transparent"
+        activeOpacity={0.5}
+        color="black"
+        size={30}
+        onPress={() => navigation.goBack()}
+      />
+    </View>
+
       <Camera ref={camera} style={StyleSheet.absoluteFill} device={device} isActive={true} photo video audio />
 
       <View style={styles.controls}>
         <Pressable onPress={onTakePicture} style={styles.captureButton}>
           <Text style={styles.buttonText}>📷 Capture</Text>
         </Pressable>
-        <Pressable onPress={isRecording ? onStopRecording : onStartRecording} style={[styles.captureButton, { backgroundColor: isRecording ? 'red' : 'white' }]}>
-          <Text style={styles.buttonText}>{isRecording ? '⏹ Stop' : '🎥 Record'}</Text>
-        </Pressable>
 
-        <Pressable onPress={() => navigation.navigate('Map')} style={styles.captureButton}>
-          <Text style={styles.buttonText}>Go to Map</Text>
-        </Pressable>
-
-        <Pressable onPress={() => navigation.navigate('Swipe')} style={styles.captureButton}>
-          <Text style={styles.buttonText}>Go to Swipe</Text>
-        </Pressable>
 
       </View>
     </View>
@@ -160,6 +165,16 @@ const styles = StyleSheet.create({
     width: '100%',
     justifyContent: 'space-evenly',
   },
+  topBar: {
+  width: '100%',
+  flexDirection: 'row',
+  justifyContent: 'flex-start',
+  padding: 10,
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  zIndex: 10,
+},
   captureButton: {
     padding: 10,
     borderRadius: 10,

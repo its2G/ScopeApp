@@ -2,11 +2,16 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image} from 'react-native';
 import { supabase } from '../components/Supabase';
+import { useNavigation } from '@react-navigation/native';
+import { MaterialCommunityIcons } from '@expo/vector-icons'; // make sure correct import
+
+
 
 export default function LeaderboardScreen({ navigation }) {
   const [selectedRegionId, setSelectedRegionId] = useState(null);
   const [leaderboard, setLeaderboard] = useState([]);
   const [loading, setLoading] = useState(false);
+
 
   // Load the leaderboard when regionId changes
   useEffect(() => {
@@ -29,7 +34,18 @@ export default function LeaderboardScreen({ navigation }) {
   }, [selectedRegionId]);
 
   return (
-    <View style={styles.container}>
+<View style={styles.container}>
+    <View style={styles.topBar}>
+      <MaterialCommunityIcons.Button
+        name="arrow-left"
+        backgroundColor="transparent"
+        underlayColor="transparent"
+        activeOpacity={0.5}
+        color="black"
+        size={30}
+        onPress={() => navigation.goBack()}
+      />
+    </View>
       <Text style={styles.title}>🏆 Leaderboard</Text>
 
       {/* Choose Region */}
@@ -88,4 +104,14 @@ const styles = StyleSheet.create({
     height: 300,
     marginBottom: 10,
   },
+  topBar: {
+  width: '100%',
+  flexDirection: 'row',
+  justifyContent: 'flex-start',
+  padding: 10,
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  zIndex: 10,
+},
 });

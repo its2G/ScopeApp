@@ -22,14 +22,14 @@
     },
     "ios": {
       "bundleIdentifier": "com.anonymous.expophotography",
-      "buildNumber": "1", // Apply fix #1 here too
+      "buildNumber": "1",
       "infoPlist": {
         "NSCameraUsageDescription": "Allow ExpoPhotography to use the camera.",
         "NSLocationWhenInUseUsageDescription": "Allow ExpoPhotography to access your location.",
         "NSLocationAlwaysUsageDescription": "Allow ExpoPhotography to always access your location.",
         "NSMicrophoneUsageDescription": "Allow ExpoPhotography to access your microphone.",
         "NSPhotoLibraryUsageDescription": "Allow ExpoPhotography to access your photo library.",
-        "UIBackgroundModes": [ // <-- Add this section
+        "UIBackgroundModes": [
           "location"
         ]
       }

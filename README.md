@@ -28,3 +28,6 @@
 ## 25/04/2025
 #### I have made changes in the mapscreen, allowing for the markers to become clickable. Once clicked on, photos will appear for all the photos that are taken within the area. Also, changes have been made to the mapscreen, meaning that when a user enters the permitted region, the 'swipebutton' will appear, relocating users to the swipescreen. The changes made in the swipe screen is that only photos taken in the area will show up in the swipescreen and users will only have access to liking / disliking photos of that area when clicking the swipe button of that region. 
 #### 04:13 - made changes to the swiping screen, now fixing issue where swiping on content does not affect other users
+
+## 27/04/2025
+#### Made alot of changes to navigation + swipe screen. Now users will be able to navigate to + from different screens. I have updated changes made to the swipe with the use of buttons to like or dislike photos. Also, I have been able to use EAS build successfully, and now I will be able to send the iOS files to TestFlight for the Beta testing, in preparation for the exhibition. 

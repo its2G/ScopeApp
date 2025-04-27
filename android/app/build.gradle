@@ -86,18 +86,6 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    buildFeatures {
-        compose = true
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion '1.5.15'
-    }
-
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-
     namespace 'com.anonymous.expophotography'
     defaultConfig {
         applicationId 'com.anonymous.expophotography'
@@ -161,8 +149,6 @@ android {
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
-    implementation "androidx.compose.runtime:runtime:1.5.15"  // Match the compiler version
-
 
     def isGifEnabled = (findProperty('expo.gif.enabled') ?: "") == "true";
     def isWebpEnabled = (findProperty('expo.webp.enabled') ?: "") == "true";

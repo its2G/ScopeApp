@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, ActivityIndicator, StyleSheet, Pressable, Text } from 'react-native';
 import { Camera, useCameraDevice, useCameraPermission } from 'react-native-vision-camera';
-import RNFS from 'react-native-fs';
+// import RNFS from 'react-native-fs';
 import { supabase } from '../components/Supabase.js';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialCommunityIcons } from '@expo/vector-icons'; 
@@ -18,6 +18,8 @@ const CameraScreen = ({ navigation, route }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [photo, setPhoto] = useState(null);
   const [video, setVideo] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+
 
   useEffect(() => {
     if (!hasPermission) requestPermission();
@@ -27,6 +29,7 @@ const CameraScreen = ({ navigation, route }) => {
   if (!device) return <Text>Camera device not found</Text>;
 
   const onTakePicture = async () => {
+    setIsProcessing(true);
 
     try {
       const { regionId } = route.params;
@@ -40,9 +43,6 @@ const CameraScreen = ({ navigation, route }) => {
     const photo = await camera.current.takePhoto();
 
     setPhoto(photo);
-    const newPath = `${RNFS.DocumentDirectoryPath}/photo.jpg`; // Use a valid path
-    await RNFS.moveFile(photo.path, newPath);
-    console.log("Updated Photo URI:", newPath);
     console.log("Photo captured:", photo.path);
 
 
@@ -50,7 +50,7 @@ const CameraScreen = ({ navigation, route }) => {
     
   const formData = new FormData();
   formData.append('photo', {
-    uri: `file://${newPath}`, // Ensure the correct URI format
+    uri: `file://${photo.path}`, // Ensure the correct URI format
     type: 'image/jpeg',
     name: 'photo.jpg',
   });
@@ -98,30 +98,14 @@ const CameraScreen = ({ navigation, route }) => {
     console.log('Photo saved to Supabase:', insertData[0]);
   }
 
-} catch (error) {
-  console.error('onTakePicture error:', error);
+
+} catch (e) {
+  console.error('onTakePicture error:', e);
+  Alert.alert('Error capturing photo', e.message);
+} finally {
+  setIsProcessing(false);
 }
 
-  };
-
-  const onStartRecording = async () => {
-    if (!camera.current) return;
-    setIsRecording(true);
-    camera.current.startRecording({
-      onRecordingFinished: (video) => {
-        setIsRecording(false);
-        setVideo(video);
-        console.log("Video saved at:", video.path);
-      },
-      onRecordingError: (error) => {
-        console.error(error);
-        setIsRecording(false);
-      },
-    });
-  };
-
-  const onStopRecording = () => {
-    camera.current?.stopRecording();
   };
 
   return (
@@ -142,8 +126,11 @@ const CameraScreen = ({ navigation, route }) => {
       <Camera ref={camera} style={StyleSheet.absoluteFill} device={device} isActive={true} photo video audio />
 
       <View style={styles.controls}>
-        <Pressable onPress={onTakePicture} style={styles.captureButton}>
-          <Text style={styles.buttonText}>📷 Capture</Text>
+        <Pressable onPress={onTakePicture} style={styles.captureButton} disabled={isProcessing}>
+         {isProcessing
+    ? <ActivityIndicator color="black"/>
+    : <Text style={styles.buttonText}>📷 Capture</Text>
+  }
         </Pressable>
 
 

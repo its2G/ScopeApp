@@ -27,16 +27,13 @@
         "googleMapsApiKey": "***REMOVED***"
       },
       "infoPlist": {
-        "NSCameraUsageDescription": "$(PRODUCT_NAME) needs access to your Camera.",
-        "NSLocationWhenInUseUsageDescription": "Allow ExpoPhotography to access your location.",
-        "NSLocationAlwaysUsageDescription": "Allow ExpoPhotography to always access your location.",
-        "NSMicrophoneUsageDescription": "$(PRODUCT_NAME) needs access to your Microphone.",
-        "NSPhotoLibraryUsageDescription": "Allow ExpoPhotography to access your photo library.",
-        "UIBackgroundModes": [
-          "location",
-          "location"
-        ],
-        "ITSAppUsesNonExemptEncryption": false
+        "NSCameraUsageDescription":          "$(PRODUCT_NAME) needs access to your Camera.",
+        "NSLocationWhenInUseUsageDescription":"Allow ExpoPhotography to access your location while you are using the app.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription":"Allow ExpoPhotography to access your location in the background.",
+        "NSMicrophoneUsageDescription":      "$(PRODUCT_NAME) needs access to your Microphone.",
+        "NSPhotoLibraryUsageDescription":    "Allow ExpoPhotography to access your photo library.",
+        "UIBackgroundModes": ["location"],
+        "ITSAppUsesNonExemptEncryption":     false
       }
     },
     "splash": {

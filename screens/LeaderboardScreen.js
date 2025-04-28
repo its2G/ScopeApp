@@ -69,6 +69,17 @@ export default function LeaderboardScreen({ navigation }) {
           <Text>Region 4 - Battersea Park</Text>
         </TouchableOpacity>
         </View>
+        <View style={styles.buttonRow}>
+        <TouchableOpacity onPress={() => setSelectedRegionId('da99e7fb-a911-4547-877c-a10c3265dba4')} style={styles.regionButton}>
+          <Text>Region 5 - Gio's House</Text>
+        </TouchableOpacity>
+        </View>
+        <View style={styles.buttonRow}>
+        <TouchableOpacity onPress={() => setSelectedRegionId('da99e7fb-a911-4547-877c-a10c3265dba4')} style={styles.regionButton}>
+          <Text>Region 6 - Enzo's Place</Text>
+        </TouchableOpacity>
+        </View>
+        
 
   
 

@@ -97,64 +97,81 @@ export default function MapScreen({ navigation }) {
       // App.js will automatically switch to the Auth screen
     }
   };
+
+  function detectRegion(coords, regions, setActiveRegion) {
+    const { latitude, longitude } = coords;
+    let found = null;
+  
+    for (let r of regions) {
+      const dist =
+        Math.hypot(
+          (latitude  - r.latitude)  * 111000,
+          (longitude - r.longitude) * 111000
+        );
+      if (dist <= r.radius) {
+        found = r;
+        break;
+      }
+    }
+  
+    setActiveRegion(found);
+  }
   
 
-  // Load geofence regions
+  
   useEffect(() => {
-    const loadRegions = async () => {
+    let watchSub;
+  
+    (async () => {
+      // A) Request permissions in sequence
+      const { status: fg } = await Location.requestForegroundPermissionsAsync();
+      if (fg !== 'granted') {
+        Alert.alert('Permission required', 'Allow location while using the app');
+        return;
+      }
+      const { status: bg } = await Location.requestBackgroundPermissionsAsync();
+      if (bg !== 'granted') {
+        Alert.alert(
+          'Background location required',
+          'Go to Settings → ExpoPhotography → Location → Always'
+        );
+        return;
+      }
+      await Notifications.requestPermissionsAsync();
+  
+      // B) Fetch regions & start background geofencing
       const { data, error } = await supabase.from('regions').select('*');
       if (error) {
-        console.error("Error fetching regions:", error.message);
+        console.error(error);
         return;
       }
       setRegions(data);
       regionsRef.current = data;
-
-      await new Promise(res => setTimeout(res, 500)); // slight delay
-      await Location.startGeofencingAsync(GEOFENCE_TASK, data.map(region => ({
-        identifier: region.identifier,
-        latitude: region.latitude,
-        longitude: region.longitude,
-        radius: region.radius,
-      })));
-
-
-
-   // Check if user is already in a region
-   const location = await Location.getCurrentPositionAsync({});
-   const { latitude, longitude } = location.coords;
-
-   for (let region of data) {
-     const distance = Math.sqrt(
-       Math.pow(latitude - region.latitude, 2) +
-       Math.pow(longitude - region.longitude, 2)
-     ) * 111000;
-
-     if (distance <= region.radius) {
-       console.log("User is already inside region:", region.identifier);
-       setActiveRegion(region);
-       break;
-     }
-   }
-};
-
-    loadRegions();
-  }, []);
-
-  // Setup permissions
-  useEffect(() => {
-    const setupPermissions = async () => {
-      const { status: fg } = await Location.requestForegroundPermissionsAsync();
-      const { status: bg } = await Location.requestBackgroundPermissionsAsync();
-      const { status: noti } = await Notifications.requestPermissionsAsync();
-
-      if (fg !== 'granted' || bg !== 'granted' || noti !== 'granted') {
-        console.log("Permissions not granted.");
-      }
+      await Location.startGeofencingAsync(
+        GEOFENCE_TASK,
+        data.map(r => ({
+          identifier: r.identifier,
+          latitude:   r.latitude,
+          longitude:  r.longitude,
+          radius:     r.radius,
+        }))
+      );
+  
+      // C) One-time “already inside?” check
+      const { coords } = await Location.getCurrentPositionAsync();
+      detectRegion(coords, data, setActiveRegion);
+  
+      // D) Watch for all future moves
+      watchSub = await Location.watchPositionAsync(
+        { accuracy: Location.Accuracy.Highest, distanceInterval: 10 },
+        ({ coords }) => detectRegion(coords, regionsRef.current, setActiveRegion)
+      );
+    })();
+  
+    return () => {
+      if (watchSub) watchSub.remove();
     };
-    setupPermissions();
   }, []);
-
   // Handle geofence enter/exit
   useEffect(() => {
     const enterListener = DeviceEventEmitter.addListener('regionEntered', (incomingRegion) => {

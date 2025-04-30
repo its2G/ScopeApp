@@ -157,11 +157,9 @@ export default function MapScreen({ navigation }) {
         }))
       );
   
-      // C) One-time “already inside?” check
       const { coords } = await Location.getCurrentPositionAsync();
       detectRegion(coords, data, setActiveRegion);
   
-      // D) Watch for all future moves
       watchSub = await Location.watchPositionAsync(
         { accuracy: Location.Accuracy.Highest, distanceInterval: 10 },
         ({ coords }) => detectRegion(coords, regionsRef.current, setActiveRegion)
@@ -231,8 +229,11 @@ export default function MapScreen({ navigation }) {
 
 
 
-    <View style={styles.LeaderboardButtonWrapper}>
-      <Button title="LeaderBoard" onPress={() => navigation.navigate('Leaderboard')} />
+    <View style={styles.LeaderBoardButtonWrapper}>
+        <Pressable onPress={() => navigation.navigate('Leaderboard')} 
+          style={styles.leaderboardButton}>
+          <Text style={styles.buttonText}>Leaderboard</Text>
+        </Pressable>
     </View>
 
       <PhotoGalleryOverlay
@@ -286,7 +287,7 @@ const styles = StyleSheet.create({
   overlayContainer: {
     position: 'absolute',
     bottom: 50,
-    height: '70%',
+    height: '75%',
     width: '100%',
     backgroundColor: 'white',
     borderTopLeftRadius: 20,
@@ -294,7 +295,7 @@ const styles = StyleSheet.create({
   },
   photo: {
     width: '100%',
-    height: 300,
+    height: 500,
     marginBottom: 10,
   },
   infoText: {
@@ -325,11 +326,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     top : 50,
   },
-  LeaderboardButtonWrapper: {
+  LeaderBoardButtonWrapper: {
     position: 'absolute',
-    alignSelf: 'center',
+    top: 50, // Adjust the vertical position
+    right: 25, // Align the button to the right of the screen
     alignItems: 'center',
-    top : 100,
   },
   cameraButton: {
     backgroundColor: '#007bff',
@@ -344,6 +345,11 @@ const styles = StyleSheet.create({
   },
   captureButton: {
     padding: 10,
+    borderRadius: 10,
+    backgroundColor: 'white',
+  },
+  leaderboardButton: {
+    padding: 2,
     borderRadius: 10,
     backgroundColor: 'white',
   },

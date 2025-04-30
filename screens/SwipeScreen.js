@@ -5,6 +5,7 @@ import { useRoute } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
 import { supabase } from '../components/Supabase';
 import {MaterialCommunirtyIcons, MaterialCommunityIcons} from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const colors = {
   red: '#EC2379',
@@ -134,7 +135,7 @@ DisplayAnImage();
                
 return (
   <View style={styles.container}>
-    <View style={styles.topBar}>
+    <SafeAreaView style={styles.topBar}>
       <MaterialCommunityIcons.Button
         name="arrow-left"
         backgroundColor="transparent"
@@ -144,7 +145,7 @@ return (
         size={30}
         onPress={() => navigation.goBack()}
       />
-    </View>
+    </SafeAreaView>
 
     {loading ? (
       <View style={styles.center}>

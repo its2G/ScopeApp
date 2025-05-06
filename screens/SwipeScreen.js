@@ -4,7 +4,7 @@ import Swiper from "react-native-deck-swiper";
 import { useRoute } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
 import { supabase } from '../components/Supabase';
-import {MaterialCommunirtyIcons, MaterialCommunityIcons} from '@expo/vector-icons';
+import {MaterialCommunityIcons} from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const colors = {

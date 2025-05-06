@@ -1,8 +1,7 @@
 // filepath: g:\CODINGWORK\202324Y3CC\FinalProject\Projects\expophotography\screens\CameraScreen.js
 import React, { useEffect, useRef, useState } from 'react';
-import { View, ActivityIndicator, StyleSheet, Pressable, Text } from 'react-native';
+import { View, ActivityIndicator, StyleSheet, Pressable, Text, SafeAreaView, Alert  } from 'react-native';
 import { Camera, useCameraDevice, useCameraPermission } from 'react-native-vision-camera';
-// import RNFS from 'react-native-fs';
 import { supabase } from '../components/Supabase.js';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialCommunityIcons } from '@expo/vector-icons'; 
@@ -111,7 +110,7 @@ const CameraScreen = ({ navigation, route }) => {
   return (
     <View style={styles.container}>
 
-<View style={styles.topBar}>
+<SafeAreaView style={styles.topBar}>
       <MaterialCommunityIcons.Button
         name="arrow-left"
         backgroundColor="transparent"
@@ -121,7 +120,7 @@ const CameraScreen = ({ navigation, route }) => {
         size={30}
         onPress={() => navigation.goBack()}
       />
-    </View>
+    </SafeAreaView>
 
       <Camera ref={camera} style={StyleSheet.absoluteFill} device={device} isActive={true} photo video audio />
 

@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
 import {
   StyleSheet, Text, View, TouchableOpacity, DeviceEventEmitter,
-  Button, Modal, ScrollView, Image, Pressable, Alert,
+  Button, Modal, ScrollView, Image, Pressable, Alert, SafeAreaView, Linking
 } from 'react-native';
 import MapView, { PROVIDER_GOOGLE, Circle, Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
+import {MaterialCommunityIcons} from '@expo/vector-icons';
 import * as TaskManager from 'expo-task-manager';
 import * as Notifications from 'expo-notifications';
 import { supabase } from '../components/Supabase';
@@ -86,6 +87,9 @@ export default function MapScreen({ navigation }) {
   const [isOverlayVisible, setOverlayVisible] = useState(false);
   const [selectedRegionId, setSelectedRegionId] = useState(null);
   const regionsRef = useRef([]);
+  const handleDeleteAccountPress = () => {
+    Linking.openURL('https://docs.google.com/forms/d/e/1FAIpQLSf4j7F7JP0OU_03h7883ucU9skiibegEKwHk9z5voEMLTRMsA/viewform?usp=dialog');
+  };
 
 
   const handleSignOut = async () => {
@@ -224,9 +228,33 @@ export default function MapScreen({ navigation }) {
         ))}
       </MapView>
       <View style={styles.signOutButtonWrapper}>
-      <Button title="Sign Out" onPress={handleSignOut} />
+      <SafeAreaView>
+      <MaterialCommunityIcons.Button
+        name="logout"
+        backgroundColor="transparent"
+        underlayColor="transparent"
+        activeOpacity={0.5}
+        color="black"
+        size={30}
+        onPress={handleSignOut}
+      />
+    </SafeAreaView>
     </View>
 
+
+    <View style={styles.formButtonWrapper}>
+      <SafeAreaView> 
+      <MaterialCommunityIcons.Button
+        name="account-off-outline"
+        backgroundColor="transparent"
+        underlayColor="transparent"
+        activeOpacity={0.5}
+        color="black"
+        size={30}
+        onPress={handleDeleteAccountPress}
+      />
+    </SafeAreaView>
+    </View>
 
 
     <View style={styles.LeaderBoardButtonWrapper}>
@@ -322,15 +350,26 @@ const styles = StyleSheet.create({
   },
   signOutButtonWrapper: {
     position: 'absolute',
+    alignSelf: 'left',
+    alignItems: 'center',
+    top : 40,
+    left: 10,
+    padding: 10,
+  },
+  formButtonWrapper: {
+    position: 'absolute',
     alignSelf: 'center',
     alignItems: 'center',
-    top : 50,
+    top : 40,
+    right: 10,
+    padding: 10,
   },
   LeaderBoardButtonWrapper: {
     position: 'absolute',
-    top: 50, // Adjust the vertical position
-    right: 25, // Align the button to the right of the screen
+    top: 50, // Adjust the vertical position // Align the button to the right of the screen
     alignItems: 'center',
+    alignSelf: 'center',
+
   },
   cameraButton: {
     backgroundColor: '#007bff',

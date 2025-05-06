@@ -1,12 +1,16 @@
 import React, { useState } from 'react'
 import { Alert, StyleSheet, View } from 'react-native'
-import { supabase } from './Supabase';
+import { supabase } from '../lib/supabase'
 import { Button, Input } from '@rneui/themed'
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 export default function Auth() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [session, setSession] = useState(null);
+
 
   async function signInWithEmail() {
     setLoading(true)
@@ -18,6 +22,17 @@ export default function Auth() {
     if (error) Alert.alert(error.message)
     setLoading(false)
   }
+
+  const resetSession = async () => {
+    try {
+      await supabase.auth.signOut();          // Step 1: Sign out from Supabase
+      await AsyncStorage.clear();    
+      setSession(null);                  // Step 3: Clear in-memory state      // Step 2: Clear local session/token
+      console.log('Session reset complete');
+    } catch (err) {
+      console.error('Session reset failed:', err);
+    }
+  };
 
   async function signUpWithEmail() {
     setLoading(true)
@@ -62,6 +77,9 @@ export default function Auth() {
       </View>
       <View style={styles.verticallySpaced}>
         <Button title="Sign up" disabled={loading} onPress={() => signUpWithEmail()} />
+      </View>
+      <View>
+      <Button title="Reset Session" onPress={resetSession} />
       </View>
     </View>
   )

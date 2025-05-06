@@ -50,7 +50,7 @@ export default function LeaderboardScreen({ navigation }) {
 
 
       {!selectedRegionId && (
-  <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 20 }}>
+  <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 20}}>
     <View style={styles.buttonRow}>
       <TouchableOpacity onPress={() => setSelectedRegionId('9d293fbd-fb2d-42ce-b377-4968bbdf2c21')} style={styles.regionButton}>
         <Text>Region 1 - Goldsmiths, University of London</Text>
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     padding: 10,
     position: 'absolute',
-    top: 10,
+    top: 15,
     left: 0,
     zIndex: 0,
   },

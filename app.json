@@ -2,7 +2,6 @@
   "expo": {
     "name": "expophotography",
     "slug": "expophotography",
-    "scheme": "expophotography",
     "version": "1.0.0",
     "android": {
       "package": "com.anonymous.expophotography",

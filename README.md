@@ -1,4 +1,4 @@
-# PhotographyApp - Feature/Camera
+# Scope App🔭
 
 ## 12/06/2024 - started 16:05pm
 

@@ -7,7 +7,7 @@
       "package": "com.anonymous.expophotography",
       "config": {
         "googleMaps": {
-          "apiKey": "***REMOVED***"
+          "apiKey": "YOUR_KEY_HERE" // <-- Add your Google Maps key here
         }
       },
       "permissions": [
@@ -24,7 +24,7 @@
       "bundleIdentifier": "com.anonymous.expophotography",
       "buildNumber": "1",
       "config": {
-        "googleMapsApiKey": "***REMOVED***"
+        "googleMapsApiKey": "YOUR_KEY_HERE" // <-- Add your Google Maps key here
       },
       "infoPlist": {
         "NSCameraUsageDescription":          "$(PRODUCT_NAME) needs access to your Camera.",

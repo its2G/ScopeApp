@@ -56,7 +56,7 @@ const CameraScreen = ({ navigation, route }) => {
 
   
 
-  const response = await fetch('https://gently-alert-gopher.ngrok-free.app/upload', {
+  const response = await fetch('add your upload endpoint here', {
     method: 'POST',
     body: formData,
     headers: {

@@ -59,13 +59,26 @@ This app was developed as a **final year university project**, exploring mobile 
 
 ---
 
-## 🧪 Next Steps
+## ✅ Completed Milestones
 
-- Connect a local storage server (old PC) for offline media archiving
-- Complete leaderboard system based on user likes
-- Improve swipe logic to prevent duplicate swipes
-- Optimize geofencing performance and battery use
-- Begin beta testing phase via TestFlight
+- ✅ Integrated a local storage server for offline media archiving
+- ✅ Developed and deployed a dynamic leaderboard system based on user likes
+- ✅ Implemented swipe logic to filter out previously seen photos per user
+- ✅ Successfully ran beta testing via TestFlight for iOS
+
+---
+
+## 🧪 User Feedback & Opportunities for Improvement
+
+Real-world testing during the public exhibition surfaced valuable insights for refining the user experience:
+
+- 🔄 **Onboarding Clarity**: Some users found the login and registration flow unclear. Future iterations will streamline navigation and provide contextual cues for a smoother start.
+- 📧 **Email Verification**: A few users experienced minor delays in receiving verification emails. Improving backend reliability and messaging will help reduce friction.
+- 🧭 **In-App Guidance**: Users appreciated hands-on explanations, highlighting the need for built-in onboarding or tooltips to guide first-time users independently.
+- 📱 **Public Display Context**: At the exhibition, some visitors misunderstood the projected gallery as the full experience. Enhancing signage and in-app prompts will align expectations better.
+- 📤 **Android Beta Access**: Manual email-based beta access for Android created slight delays. Future versions will explore easier distribution methods for wider access.
+- 🛠️ **App Store Preparation**: Preparing the app for full release uncovered typical platform requirements (e.g., content classification and child safety policies), which are now being addressed.
+
 
 ---
 

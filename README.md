@@ -86,10 +86,18 @@ Real-world testing during the public exhibition surfaced valuable insights for r
 
 This project is currently not under an open-source license. Contributions or collaborations welcome after beta phase.
 
-
-
-
 <img width="207" height="448" alt="ScreenShot1" src="https://github.com/user-attachments/assets/98558cd0-3539-4742-8ede-317a8d63da01" />
 <img width="207" height="448" alt="ScreenShot2" src="https://github.com/user-attachments/assets/23ec4dca-a621-48f8-b128-f8984dc7597f" />
 <img width="207" height="448" alt="ScreenShot3" src="https://github.com/user-attachments/assets/988147d0-cd93-47a9-a75e-1fd8b480910e" />
 <img width="207" height="448" alt="ScreenShot4" src="https://github.com/user-attachments/assets/fe55c741-acef-46ba-a176-98fc0507025b" />
+
+
+## 🗄️ Supabase Integration
+
+Below are some screenshots showing the backend structure used in this project.
+
+### Database Structure
+<img width="1538" height="748" alt="supabase-schema-gasujtndtzfkqilxmibz" src="https://github.com/user-attachments/assets/11470eac-371d-4c46-8a96-1392b393203e" />
+
+### Regions Table 
+<img width="1107" height="430" alt="regionstable" src="https://github.com/user-attachments/assets/5b65b3ce-0e43-441f-a12f-52f733a55502" />

@@ -75,7 +75,8 @@ This project is currently not under an open-source license. Contributions or col
 
 
 
-<img width="207" height="448" alt="ScreenShot4" src="https://github.com/user-attachments/assets/43232a99-d939-409f-813f-46b8b0faf74b" />
-<img width="207" height="448" alt="ScreenShot1" src="https://github.com/user-attachments/assets/3e90e766-944c-4ff3-b445-fb16993c94b3" />
-<img width="207" height="448" alt="ScreenShot3" src="https://github.com/user-attachments/assets/4e7d97aa-ea3f-481f-90fb-5d7c8ad43442" />
-<img width="207" height="448" alt="ScreenShot2" src="https://github.com/user-attachments/assets/e1cf5125-5e01-411f-a582-112a39176f31" />
+
+<img width="207" height="448" alt="ScreenShot1" src="https://github.com/user-attachments/assets/98558cd0-3539-4742-8ede-317a8d63da01" />
+<img width="207" height="448" alt="ScreenShot2" src="https://github.com/user-attachments/assets/23ec4dca-a621-48f8-b128-f8984dc7597f" />
+<img width="207" height="448" alt="ScreenShot3" src="https://github.com/user-attachments/assets/988147d0-cd93-47a9-a75e-1fd8b480910e" />
+<img width="207" height="448" alt="ScreenShot4" src="https://github.com/user-attachments/assets/fe55c741-acef-46ba-a176-98fc0507025b" />
